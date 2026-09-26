@@ -1,4 +1,5 @@
 <?php 
+session_start();
 
 include 'connect.php';
 
@@ -32,22 +33,18 @@ if(isset($_POST['signUp'])){
 if(isset($_POST['signIn'])){
    $email=$_POST['email'];
    $password=$_POST['password'];
-   $password=md5($password) ;
-   
+   $password=md5($password);
+
    $sql="SELECT * FROM users WHERE email='$email' and password='$password'";
    $result=$conn->query($sql);
    if($result->num_rows>0){
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
     $row=$result->fetch_assoc();
-    $_SESSION['email']=$row['email'];
-    header("Location: homepage.php");
+    $_SESSION['user_name'] = $row['firstName'] . ' ' . $row['lastName'];
+    header("Location: home.html");
     exit();
    }
    else{
     echo "Not Found, Incorrect Email or Password";
    }
-
 }
 ?>
