@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Issue List</title>
+    <link rel="stylesheet" href="style1.css">
+    <style>
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #2196F3;
+            color: white;
+        }
+        img.thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        select.status-select {
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .status-Pending { color: #d97706; font-weight: bold; }
+        .status-In-Progress { color: #2563eb; font-weight: bold; }
+        .status-Solved { color: #16a34a; font-weight: bold; }
+
+        .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+}
+.modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+}
+.modal .close-btn {
+    position: absolute;
+    top: 20px; right: 30px;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+    z-index: 1001;
+}
+img.thumb {
+    cursor: pointer;
+}
+
+    </style>
+</head>
+<body>
+
+  <div class="modal" id="imgModal" onclick="closeModal()">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <img id="modalImg" src="" onclick="event.stopPropagation()">
+</div>
+    <nav>
+        <h2>Community Issue Tracker</h2>
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="index.php">Login</a></li>
+            <li><a href="report_issue.html">Report Issue</a></li>
+            <li><a href="issue.html">Issue List</a></li>
+        </ul>
+    </nav>
+
+    <h1 style="text-align:center; margin-top:30px;">Reported Issues</h1>
+    <div style="text-align: center; margin: 20px 0; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+    <input type="text" id="searchBox" placeholder="Search by title or location..." style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 250px;">
+    <select id="categoryFilter" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+        <option value="">All Categories</option>
+        <option value="Garbage">Garbage</option>
+        <option value="Road Damage">Road Damage</option>
+        <option value="Water Leakage">Water Leakage</option>
+        <option value="Streetlight Issue">Streetlight Issue</option>
+    </select>
+    <select id="statusFilter" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+        <option value="">All Statuses</option>
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Solved">Solved</option>
+    </select>
+</div>
+
+    <table id="issues-table">
+        <thead>
+            <tr>
+                <th>Photo</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Category</th>
+                <th>Reported By</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="issues-body">
+        </tbody>
+    </table>
+
+    <script>
+        let allIssues = [];
+
+fetch('get_issues.php')
+    .then(res => res.json())
+    .then(issues => {
+        allIssues = issues;
+        renderTable(allIssues);
+    });
+
+function renderTable(issues) {
+    const tbody = document.getElementById('issues-body');
+    tbody.innerHTML = "";
+    if (issues.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No matching issues found.</td></tr>";
+        return;
+    }
+    issues.forEach(issue => {
+        const photoCell = issue.photo
+            ? `<img class="thumb" src="uploads/${issue.photo}" onclick="openModal('uploads/${issue.photo}')">`
+            : "No photo";
+        const statusClass = "status-" + issue.status.replace(" ", "-");
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${photoCell}</td>
+                <td>${issue.title}</td>
+                <td>${issue.description}</td>
+                <td>${issue.location}</td>
+                <td>${issue.category}</td>
+                <td>${issue.reporter_name}</td>
+                <td>${issue.reported_at}</td>
+                <td>
+                    <select class="status-select ${statusClass}" onchange="updateStatus(${issue.id}, this.value)">
+                        <option value="Pending" ${issue.status === "Pending" ? "selected" : ""}>Pending</option>
+                        <option value="In Progress" ${issue.status === "In Progress" ? "selected" : ""}>In Progress</option>
+                        <option value="Solved" ${issue.status === "Solved" ? "selected" : ""}>Solved</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function applyFilters() {
+    const search = document.getElementById('searchBox').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+    const status = document.getElementById('statusFilter').value;
+
+    const filtered = allIssues.filter(issue => {
+        const matchesSearch = issue.title.toLowerCase().includes(search) || issue.location.toLowerCase().includes(search);
+        const matchesCategory = category === "" || issue.category === category;
+        const matchesStatus = status === "" || issue.status === status;
+        return matchesSearch && matchesCategory && matchesStatus;
+    });
+
+    renderTable(filtered);
+}
+
+document.getElementById('searchBox').addEventListener('input', applyFilters);
+document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        function updateStatus(id, newStatus) {
+            fetch('update_status.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `id=${id}&status=${encodeURIComponent(newStatus)}`
+            });
+        }
+        function openModal(src) {
+    document.getElementById('modalImg').src = src;
+    document.getElementById('imgModal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('imgModal').style.display = 'none';
+}
+    </script>
+</body>
+</html>

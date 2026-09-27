@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Community Issue Tracker</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet'href='style1.css'>
+
+</head>
+<body>
+    <nav>
+        <h2>Community Issue Tracker</h2>
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="index.php">Login</a></li>
+            <li><a href="report_issue.html">Report Issue</a></li>
+            <li><a href="issue.html">Issue List</a></li>
+        </ul>
+    </nav>
+    <header class="home">
+    <h1>Welcome to the Community Issue Reporting Portal</h1>
+    <p>Report your local issues and help imporve your Community.</p>
+    <a href="report_issue.html" class="ri">Report an Issue</a>
+    <p class="subtext"> Your report creates real change. Together, we can bulid a cleaner, safer and better community</p>
+    <div class="main">
+    <div class="sub">
+    <h3>Easy Reporting</h3>
+    <p>Submit issues quickly with photos and descriptions.</p>
+    </div>
+    <div class="sub">
+        <h3>Real-Time Tracking</h3>
+        <p>Check the status of issues as they get resolved.</p>
+    </div>
+    <div class="sub">
+        <h3>Community Driven</h3>
+        <p>Empower everyone to take part in improving the area. </p>
+    </div>
+    </div>
+</header>
+
+<div style="max-width: 900px; margin: 40px auto; text-align: center;">
+    <h2 style="margin-bottom: 20px; color: #1e3a8a;">Community Impact</h2>
+    <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+        <div style="background: white; padding: 25px 35px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <div id="stat-total" style="font-size: 32px; font-weight: 700; color: #2563eb;">-</div>
+            <div>Total Issues Reported</div>
+        </div>
+        <div style="background: white; padding: 25px 35px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <div id="stat-solved" style="font-size: 32px; font-weight: 700; color: #16a34a;">-</div>
+            <div>Resolved</div>
+        </div>
+        <div style="background: white; padding: 25px 35px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <div id="stat-progress" style="font-size: 32px; font-weight: 700; color: #2563eb;">-</div>
+            <div>In Progress</div>
+        </div>
+        <div style="background: white; padding: 25px 35px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <div id="stat-pending" style="font-size: 32px; font-weight: 700; color: #d97706;">-</div>
+            <div>Pending</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    fetch('get_stats.php')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('stat-total').textContent = data.total;
+            document.getElementById('stat-solved').textContent = data.solved;
+            document.getElementById('stat-progress').textContent = data.inProgress;
+            document.getElementById('stat-pending').textContent = data.pending;
+        });
+</script>
+
+<section class="info">
+    <h2>How It works</h2>
+    <p class="hello">Our portal makes it simple to community member to report issues and track their resolution.
+       Every report helps create a cleaner and safer environment. 
+    </p>
+</section>
+<section class="project">
+    <h2>About the project</h2>
+    <p class="hi">
+        This porject is created to encourage active community participation. Together, we can imporve our environment through quick reporting and transparency.
+    </p>
+</section>
+</body>
+</html>
